@@ -10,10 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.swagger.v3.oas.models.links.Link;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -32,50 +35,126 @@ public class FlowableWorkflowService {
 	private TaskService taskService;
 
 	
-	public void startAllFlows() {
+	public static class Result{
+		public int id;
+		public List<String> deploy;
+		public List<String> exec;
 		
-		int[] empId = {5,10,50,100,250,500,1000};
+		public Result(int id) {
+			this.id = id;
+			deploy = new LinkedList<String>();
+			exec = new LinkedList<String>();
+		}
 		
-		// int[] empId = {1};
+		public String deployToString() {
+			StringBuffer b = new StringBuffer();
+			b.append(id + ": [");
+			for(String test : deploy) {
+				b.append(test+", ");
+			}
+			b.append("]");
+			return b.toString();
+		}
+		
+		public String execToString() {
+			StringBuffer b = new StringBuffer();
+			b.append(id + ": [");
+			for(String test : exec) {
+				b.append(test+", ");
+			}
+			b.append("]");
+			return b.toString();
+		}
+		
+	}
+	
+	public List<Object>  startAllFlows() {
+		
+		String testLoader = "sequentialFlow_10.bpmn";
+		String testLoaderStanceName = "sequentialProcess_10";
+		repositoryService.createDeployment().name(testLoader).addClasspathResource(testLoader).deploy();
+		runtimeService.startProcessInstanceByKey(testLoaderStanceName);
+		//removePreviousDeploys(testLoader);
+		
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		 HashMap<String, Result> results = new HashMap<>();
+		
+		 int[] empId = {5,10,25,50,100,200,300,500,1000};
+		 
+		 for (int i = 0; i < empId.length; i++) {
+			 int task_number = empId[i];
+			 String resourceName = "sequentialFlow_"+task_number+".bpmn";
+			 removePreviousDeploys(resourceName);
+		 }
+		 
+		 try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		 
+		 //int[] empId = {10};
+		
+		Result r = new Result(0);
+		results.put("0", r);
 		
 		for (int i = 0; i < empId.length; i++) {
 			
 			int task_number = empId[i];
+			/*
+			Result r = results.get(""+task_number);
+			
+			if(r == null) {
+				r = new Result(task_number);
+				results.put(""+task_number, r);
+			}
+			*/
 			
 			String resourceName = "sequentialFlow_"+task_number+".bpmn";
 			String stanceName = "sequentialProcess_" + task_number;
-			
+
 			//String resourceName = "flowable-wind113.bpmn";
 		    //String stanceName = "process3";
 			
 		    long startTime = 0;
 		
-			removePreviousDeploys(resourceName);
+			//removePreviousDeploys(resourceName);
+			
+			//if ( 1 == 1) continue;
 				
 			// deploy flow
 			startTime = System.currentTimeMillis();
 			repositoryService.createDeployment().name(resourceName).addClasspathResource(resourceName).deploy();
-			computerExecTime(startTime, "deploy of " + resourceName + " done: ");
+			long deploy = computerExecTime(startTime, "deploy of " + resourceName + " done: ");
+			r.deploy.add(deploy+"");
+			
 			
 			Map<String, Object> variables = new HashMap<>();
 			variables.put("var_test", generateRandomString(128));
-			//variables.put("'pass'", "yes");
+			variables.put("pass", true);
 			
-			// create a stance
 			startTime = System.currentTimeMillis();
+			// create a stance
 			ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(stanceName,variables);
-			computerExecTime(startTime, "stance of " + stanceName + " with id= " + processInstance.getId() + " started: ");
+			//computerExecTime(startTime, "stance of " + stanceName + " with id= " + processInstance.getId() + " started: ");
 			
-			for( Task t : taskService.createTaskQuery().list() ) {
-				System.out.println(t.getName());
-			}
+			//for( Task t : taskService.createTaskQuery().list() ) {
+			//	System.out.println(t.getName());
+			//}
 			
 	
-			System.out.println("isSuspended: " + processInstance.isSuspended());
-			System.out.println("isEnded: " + processInstance.isEnded());
+			//System.out.println("isSuspended: " + processInstance.isSuspended());
+			//System.out.println("isEnded: " + processInstance.isEnded());
 			
-			
-			startTime = System.currentTimeMillis();
+			//startTime = System.currentTimeMillis();
 			
 			do {
 	            List<Task> tasks = taskService.createTaskQuery()
@@ -84,7 +163,7 @@ public class FlowableWorkflowService {
 	                    .list();
 
 	            for (Task task : tasks) {
-	                System.out.println("current task: " + task.getName());
+	                //System.out.println("current task: " + task.getName());
 	                
 	               /// Map<String, Object> variables2 = new HashMap<>();
 	    		   // variables2.put("'pass'", "yes");            
@@ -95,12 +174,30 @@ public class FlowableWorkflowService {
 	        } while (taskService.createTaskQuery().processInstanceId(processInstance.getId()).active().count() > 0);
 
 		
-			computerExecTime(startTime, "finish tasks flow id= " + processInstance.getId() +" ");
+			long exec = computerExecTime(startTime, "finish tasks flow id= " + processInstance.getId() +" ");
+			r.exec.add(exec+"");
 			System.out.println("isSuspended: " + processInstance.isSuspended());
 			System.out.println("isEnded: " + processInstance.isEnded());
 			
 		}
+		/*
+		System.out.println("Deploy");
+		for (int i = 0; i < empId.length; i++) {
+			System.out.println(results.get(""+empId[i]).deployToString());
+		}
+		System.out.println("Exec");
+		for (int i = 0; i < empId.length; i++) {
+			System.out.println(results.get(""+empId[i]).execToString());
+		}
+		*/
+		System.out.println("Deploy: " + r.deployToString());
+		System.out.println("Exec: " + r.execToString());
 		
+		var result_str = new ArrayList<>();
+		result_str.add("Deploy: " + r.deployToString());
+		result_str.add("Exec: " + r.execToString());
+		
+		return result_str;
 		
 	}
 
@@ -120,10 +217,11 @@ public class FlowableWorkflowService {
 	}
 	
 
-	public void computerExecTime(long startTime, String action) {
+	public long computerExecTime(long startTime, String action) {
 		long endTime = System.currentTimeMillis();
 	    long executionTime = endTime - startTime;
 		System.out.println(action + executionTime + " ms");
+		return executionTime;
 	}
 	
 	 private static String generateRandomString(int length) {
