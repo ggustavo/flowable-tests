@@ -67,12 +67,6 @@ public class FlowableWorkflowService {
 			removePreviousDeploys(name + ".bpmn");
 		}
 
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
 		int i = 0;
 
 		for (String name : names) {
