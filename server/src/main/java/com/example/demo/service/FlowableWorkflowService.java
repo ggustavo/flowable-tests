@@ -62,6 +62,65 @@ public class FlowableWorkflowService {
 
 	}
 
+	public int deployByNames(List<String> names) {
+		for (String name : names) {
+			removePreviousDeploys(name + ".bpmn");
+		}
+
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		int i = 0;
+
+		for (String name : names) {
+			Deployment deploy = repositoryService.createDeployment().name(name + ".bpmn").addClasspathResource(name + ".bpmn").deploy();
+			System.out.println("deploy de " + name + " foi realizado !!");
+
+			if (deploy != null) {
+				i++;
+			}
+		}
+
+		return i;
+	}
+
+	public List<Long> startByNames(List<String> names) {
+		List<Long> arrayTimes = new ArrayList<>();
+
+		for (String name : names) {
+			String resourceName = name;
+
+			// deploy flow
+			Map<String, Object> variables = new HashMap<>();
+			variables.put("var_test", generateRandomString(128));
+			variables.put("pass", true);
+
+			long startTime = System.currentTimeMillis();
+			ProcessInstance processInstance = runtimeService.startProcessInstanceByKey(resourceName, variables);
+
+			do {
+				List<Task> tasks = taskService.createTaskQuery()
+						.processInstanceId(processInstance.getId())
+						.active()
+						.list();
+
+				for (Task task : tasks) {
+					taskService.complete(task.getId()); 
+				}
+			} while (taskService.createTaskQuery().processInstanceId(processInstance.getId()).active().count() > 0);
+
+			long exec = computerExecTime(startTime, "finish tasks flow id= " + processInstance.getId() + " ");
+			arrayTimes.add(exec);
+			System.out.println("isSuspended: " + processInstance.isSuspended());
+			System.out.println("isEnded: " + processInstance.isEnded());
+		}
+
+		return arrayTimes;
+	}
+
 	public List<Object> startAllFlows() {
 
 		String testLoader = "sequentialFlow_10.bpmn";
