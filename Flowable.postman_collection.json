@@ -1,0 +1,96 @@
+{
+	"info": {
+		"_postman_id": "f10b16c8-3d03-4aa2-bea8-3d1a0d1635a4",
+		"name": "Flowable",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1719766"
+	},
+	"item": [
+		{
+			"name": "sendFlows",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/ander/OneDrive/Área de Trabalho/sequentialFlow.zip"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8081/sendFlows",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"sendFlows"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deploy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"sequentialFlow_5\", \"sequentialFlow_10\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/deploy",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"deploy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "startNames",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"sequentialProcess_5\", \"sequentialProcess_10\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/start/names",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"start",
+						"names"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
