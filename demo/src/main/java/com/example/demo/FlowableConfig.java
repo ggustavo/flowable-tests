@@ -1,3 +1,4 @@
+/*
 package com.example.demo;
 
 import org.flowable.spring.SpringProcessEngineConfiguration;
@@ -8,7 +9,7 @@ import org.springframework.context.annotation.Primary;
 
  // @Configuration
 public class FlowableConfig {
-	/*
+	
 	@Primary
     @Bean
     public SpringAsyncExecutor springAsyncExecutor() {
@@ -27,6 +28,7 @@ public class FlowableConfig {
 		System.out.println("---------------------------------------------------------------------------------------------------");
         return configuration;
     }
-    */
+  
 
 }
+*/

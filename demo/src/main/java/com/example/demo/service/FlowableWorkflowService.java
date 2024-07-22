@@ -8,14 +8,9 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import io.swagger.v3.oas.models.links.Link;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +64,8 @@ public class FlowableWorkflowService {
 	}
 	
 	public List<Object>  startAllFlows() {
+		
+		String buffer = "";
 		
 		String testLoader = "sequentialFlow_10.bpmn";
 		String testLoaderStanceName = "sequentialProcess_10";
@@ -165,9 +162,15 @@ public class FlowableWorkflowService {
 	            for (Task task : tasks) {
 	                //System.out.println("current task: " + task.getName());
 	                
-	               /// Map<String, Object> variables2 = new HashMap<>();
-	    		   // variables2.put("'pass'", "yes");            
-	                taskService.complete(task.getId()); // variables2
+	                Map<String, Object> variables2 = new HashMap<>();
+	    		    
+	                variables2.put("'test1'", generateRandomString(900000000)); 
+	    		    variables2.put("'test2'", generateRandomString(900000000)); 
+	    		    variables2.put("'test3'", generateRandomString(900000000)); 
+	    		    
+	    		    System.out.println("current size: " + buffer.length());
+	                taskService.complete(task.getId(),variables2); // variables2
+	                System.out.println("Deu certo!");
 	                
 	               
 	            }

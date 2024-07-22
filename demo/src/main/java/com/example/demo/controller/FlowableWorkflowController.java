@@ -13,6 +13,7 @@ import java.util.List;
 
 @RestController
 public class FlowableWorkflowController {
+	
     @Autowired
     private FlowableWorkflowService service;
     
@@ -27,12 +28,13 @@ public class FlowableWorkflowController {
         return ResponseEntity.ok(service.allTasks());
     }
     
+    /*
     @PostMapping("/deploy")
     public ResponseEntity<?> deploy(){
     	var result = service.startAllFlows();
     	return ResponseEntity.ok(result);
     }
-    
+    */
     /*
 
     @PostMapping("/bigboy/{id}")
